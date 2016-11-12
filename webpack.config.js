@@ -28,7 +28,11 @@ module.exports = {
     },
 
     plugins: [
-        new webpack.BannerPlugin("Hi, this is Jason, Wang."),
+        new webpack.ProvidePlugin({
+            "$": "jquery",
+            "jQuery": "jquery"
+        }),
+        // new webpack.BannerPlugin("Hi, this is Jason, Wang."),
         new webpack.HotModuleReplacementPlugin()
     ],
 
