@@ -2,6 +2,8 @@ export default class GamePanel
 {
     constructor(x, y)
     {
+        this.x = x;
+        this.y = y;
         this._init();
         this._initPanel();
         this._initSnake();
@@ -13,8 +15,6 @@ export default class GamePanel
     _init()
     {
         this.length = 10;
-        this.x = x;
-        this.y = y;
         this.cubes = new Array();
         this.gamePanel = $(".game-panel")[0];
     }
