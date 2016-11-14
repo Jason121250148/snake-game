@@ -7,6 +7,7 @@
 3. 访问:http://localhost:8080/
 
 ## 技术概览
+* socketio.js
 * HTML 5:canvas
 * Webpack
 * ES6
