@@ -85,7 +85,7 @@ export default class GamePanel
 
     snakeAutoRun()
     {
-        this.intervalID = window.setInterval(this._goNext.bind(this), 200);
+        this.intervalID = window.setInterval(this._goNext.bind(this), 75);
     }
 
     _goNext()
@@ -166,6 +166,21 @@ export default class GamePanel
     {
         let pos0 = Math.floor(Math.random() * this.x);
         let pos1 = Math.floor(Math.random() * this.y);
-        return [pos0, pos1];
+        let isBeanAvail = true;
+        let newBean = [pos0, pos1];
+        this.snake1.forEach(item => {
+            if (newBean[0] === item[0] && newBean[1] === item[1])
+            {
+                isBeanAvail = false;
+            }
+        });
+        if (isBeanAvail)
+        {
+            return newBean;
+        }
+        else
+        {
+            return this._generateBean();
+        }
     }
 }
