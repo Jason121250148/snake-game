@@ -8,8 +8,9 @@ export default class GamePanel
         this._initPanel();
         this._initSnake();
         this._initBeans();
+        this._initListen();
         this.vender();
-        this.snakeRun();
+        this.snakeAutoRun();
     }
 
     _init()
@@ -17,24 +18,29 @@ export default class GamePanel
         this.length = 10;
         this.cubes = new Array();
         this.gamePanel = $(".game-panel")[0];
+
+        this.keyMap = {
+            37: "left",
+            38: "top",
+            39: "right",
+            40: "down"
+        };
+        this.directionCode = 37;
+        this.intervalID = null;
     }
 
     _initSnake()
     {
         this.snake1 = new Array();
         this.snake2 = new Array();
-        //1表示1号玩家的蛇
-        //2表示2号玩家的蛇
         for(let i = 10; i < 20; i++)
         {
             this.snake1.push([10,i]);
-            // this.cubes[10][i] = 1;
         }
     }
 
     _initBeans()
     {
-        //100表示豆子
         this.beans = new Array();
         this.beans.push([10,5]);
     }
@@ -45,6 +51,19 @@ export default class GamePanel
         $(this.gamePanel).css({
             "height": this.x * this.length,
             "width": this.y * this.length
+        });
+    }
+
+    _initListen()
+    {
+        $(document).keydown(event => {
+            if (this.directionCode !== event.keyCode)
+            {
+                if (!(this.directionCode - 2 === event.keyCode || this.directionCode + 2 === event.keyCode))
+                {
+                    this.directionCode = event.keyCode;
+                }
+            }
         });
     }
 
@@ -73,12 +92,60 @@ export default class GamePanel
         });
     }
 
-    snakeRun()
+    snakeAutoRun()
     {
-        let i = 4;
-        window.setInterval(() => {
+        this.intervalID = window.setInterval(this._goNext.bind(this), 500);
+    }
+
+    _goNext()
+    {
+        let pos0, pos1, nextStep;
+        switch (this.keyMap[this.directionCode]) {
+            case "left":
+                pos0 = this.snake1[0][0];
+                pos1 = this.snake1[0][1] - 1;
+                break;
+            case "top":
+                pos0 = this.snake1[0][0] - 1;
+                pos1 = this.snake1[0][1];
+                break;
+            case "right":
+                pos0 = this.snake1[0][0];
+                pos1 = this.snake1[0][1] + 1;
+                break;
+            case "down":
+                pos0 = this.snake1[0][0] + 1;
+                pos1 = this.snake1[0][1];
+                break;
+        }
+        nextStep = [pos0, pos1];
+        if (!this._checkDie(nextStep))
+        {
             this.snake1.pop();
+            this.snake1.unshift(nextStep);
             this.vender();
-        }, 1000);
+        }
+        else
+        {
+            alert("You die!");
+            window.clearInterval(this.intervalID);
+            return;
+        }
+    }
+
+    _checkDie(nextStep)
+    {
+        let isDie = false;
+        if (nextStep[0] === -1 || nextStep[0] === 41 || nextStep[0] === 101 || nextStep[1] === -1 || nextStep[1] === 41 || nextStep[1] === 101)
+        {
+            isDie = true;
+        }
+        this.snake1.forEach(item => {
+            if (item.toString() === nextStep.toString())
+            {
+                isDie = true;
+            }
+        });
+        return isDie;
     }
 }
