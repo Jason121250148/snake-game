@@ -5,19 +5,21 @@ export default class GamePanel
         this.x = x;
         this.y = y;
         this._init();
-        this._initPanel();
         this._initSnake();
-        this._initBeans();
-        this._initListen();
+        this._initBean();
+        this._initListener();
         this.render();
         this.snakeAutoRun();
     }
 
     _init()
     {
-        this.length = 10;
+        this.length = 15;
         this.cubes = new Array();
-        this.gamePanel = $(".game-panel")[0];
+        this.gamePanel = document.getElementById("game-panel");
+        this.gamePanel.width = this.y * this.length;
+        this.gamePanel.height = this.x * this.length;
+        this.panel2d = this.gamePanel.getContext("2d");
 
         this.keyMap = {
             37: "left",
@@ -39,22 +41,12 @@ export default class GamePanel
         }
     }
 
-    _initBeans()
+    _initBean()
     {
-        this.beans = new Array();
-        this.beans.push([10,5]);
+        this.bean = this._generateBean();
     }
 
-    _initPanel()
-    {
-        this.panel2d = this.gamePanel.getContext("2d");
-        $(this.gamePanel).css({
-            "height": this.x * this.length,
-            "width": this.y * this.length
-        });
-    }
-
-    _initListen()
+    _initListener()
     {
         $(document).keydown(event => {
             if (this.directionCode !== event.keyCode)
@@ -74,11 +66,11 @@ export default class GamePanel
         {
             for(let j = 0; j < this.y; j++)
             {
-                this.panel2d.fillStyle = "black";
+                this.panel2d.fillStyle = 'rgb(' + Math.floor(255 - 5 * i) + ',' + Math.floor(255 - 2 * j) + ',0)';
                 this.panel2d.fillRect(j * this.length, i * this.length, this.length, this.length);
-
             }
         }
+
         //画蛇
         this.panel2d.fillStyle = "green";
         this.snake1.forEach(item => {
@@ -87,14 +79,12 @@ export default class GamePanel
 
         //画豆子
         this.panel2d.fillStyle = "red";
-        this.beans.forEach(bean => {
-            this.panel2d.fillRect(bean[1] * this.length, bean[0] * this.length, this.length, this.length);
-        });
+        this.panel2d.fillRect(this.bean[1] * this.length, this.bean[0] * this.length, this.length, this.length);
     }
 
     snakeAutoRun()
     {
-        this.intervalID = window.setInterval(this._goNext.bind(this), 500);
+        this.intervalID = window.setInterval(this._goNext.bind(this), 200);
     }
 
     _goNext()
@@ -119,10 +109,20 @@ export default class GamePanel
                 break;
         }
         nextStep = [pos0, pos1];
-        if (!this._checkDie(nextStep))
+        //1. 判断是否死亡
+        if (!this._checkIfDie(nextStep))
         {
-            this.snake1.pop();
-            this.snake1.unshift(nextStep);
+            //2. 判断是否吃到了豆子
+            if (this._checkEatBean(nextStep))
+            {
+                this.snake1.unshift(nextStep);
+                this.bean = this._generateBean();
+            }
+            else
+            {
+                this.snake1.pop();
+                this.snake1.unshift(nextStep);
+            }
             this.render();
         }
         else
@@ -133,10 +133,10 @@ export default class GamePanel
         }
     }
 
-    _checkDie(nextStep)
+    _checkIfDie(nextStep)
     {
         let isDie = false;
-        if (nextStep[0] === -1 || nextStep[0] === 41 || nextStep[0] === 101 || nextStep[1] === -1 || nextStep[1] === 41 || nextStep[1] === 101)
+        if (nextStep[0] === -1 || nextStep[0] === this.x || nextStep[1] === -1 || nextStep[1] === this.y)
         {
             isDie = true;
         }
@@ -147,5 +147,22 @@ export default class GamePanel
             }
         });
         return isDie;
+    }
+
+    _checkEatBean(nextStep)
+    {
+        let eatBean = false;
+        if (this.bean[0] === nextStep[0] && this.bean[1] === nextStep[1])
+        {
+            eatBean = true;
+        }
+        return eatBean;
+    }
+
+    _generateBean()
+    {
+        let pos0 = Math.floor(Math.random() * this.x);
+        let pos1 = Math.floor(Math.random() * this.y);
+        return [pos0, pos1];
     }
 }
