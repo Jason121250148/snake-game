@@ -9,7 +9,7 @@ export default class GamePanel
         this._initSnake();
         this._initBeans();
         this._initListen();
-        this.vender();
+        this.render();
         this.snakeAutoRun();
     }
 
@@ -67,7 +67,7 @@ export default class GamePanel
         });
     }
 
-    vender()
+    render()
     {
         //clear
         for(let i = 0; i < this.x; i++)
@@ -123,7 +123,7 @@ export default class GamePanel
         {
             this.snake1.pop();
             this.snake1.unshift(nextStep);
-            this.vender();
+            this.render();
         }
         else
         {
