@@ -27,6 +27,7 @@ export default class GamePanel
             39: "right",
             40: "down"
         };
+        this.tempDirectionCode = 37;
         this.directionCode = 37;
         this.intervalID = null;
     }
@@ -53,7 +54,7 @@ export default class GamePanel
             {
                 if (!(this.directionCode - 2 === event.keyCode || this.directionCode + 2 === event.keyCode))
                 {
-                    this.directionCode = event.keyCode;
+                    this.tempDirectionCode = event.keyCode;
                 }
             }
         });
@@ -123,6 +124,7 @@ export default class GamePanel
                 this.snake1.pop();
                 this.snake1.unshift(nextStep);
             }
+            this.directionCode = this.tempDirectionCode;
             this.render();
         }
         else
@@ -144,6 +146,7 @@ export default class GamePanel
             if (item.toString() === nextStep.toString())
             {
                 isDie = true;
+                console.log("die", nextStep);
             }
         });
         return isDie;
