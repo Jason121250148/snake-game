@@ -1,5 +1,5 @@
-import Snake from "./rs/Snake.js";
+import GamePanel from "./rs/GamePanel.js";
 
-const mySnake = new Snake("Jason's snake");
+require("./res/main.less");
 
-mySnake.sayName();
+const gamePanel = new GamePanel(30, 50);
