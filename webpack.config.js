@@ -1,27 +1,32 @@
-const webpack = require("webpack");
+"use strict";
+
 const path = require("path");
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const webpack = require("webpack");
 
 module.exports = {
-    //entry: __dirname + "/src/main.js",
-    entry: [
-        "webpack/hot/dev-server",
-         "webpack-dev-server/client?http://localhost:8080",
-         path.resolve(__dirname, "src/main.js")
-    ],
+    context: path.resolve("./src"),
+    entry: {
+        "rs": [ "./rs/main.js", "./res/main.less" ]
+    },
     output: {
-        path: __dirname + "/public",
-        filename: "bundle.js"
+        path: path.resolve("./public/assets"),
+        publicPath: "/assets/",
+        filename: "[name]/index.js"
+    },
+    devServer: {
+        contentBase: path.resolve("./public")
     },
 
     module: {
         loaders: [
             {
                 test: /\.less$/,
-                loader: "style!css!less"
+                loader: ExtractTextPlugin.extract("style-loader", "css-loader!less-loader")
             },
             {
                 test: /\.js$/,
-                exclude: "node_modules/",
+                exclude: /(node_modules|bower_components)/,
                 loader: "babel"
             }
         ]
@@ -32,13 +37,12 @@ module.exports = {
             "$": "jquery",
             "jQuery": "jquery"
         }),
-        // new webpack.BannerPlugin("Hi, this is Jason, Wang."),
-        new webpack.HotModuleReplacementPlugin()
+        new ExtractTextPlugin("./[name]/res/index.css")
     ],
 
-    devServer: {
-        contentBase: "./public",
-        colors: true,
-        hot: true
-    }
+    // devServer: {
+    //     contentBase: "./public",
+    //     colors: true,
+    //     hot: true
+    // }
 };
