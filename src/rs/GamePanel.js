@@ -5,11 +5,11 @@ export default class GamePanel
         this.x = x;
         this.y = y;
         this._init();
+        this._initSocketEvent();
         this._initSnake();
         this._initBean();
         this._initListener();
         this.render();
-        this.snakeAutoRun();
     }
 
     _init()
@@ -20,6 +20,7 @@ export default class GamePanel
         this.gamePanel.width = this.y * this.length;
         this.gamePanel.height = this.x * this.length;
         this.panel2d = this.gamePanel.getContext("2d");
+        this.socket = io.connect("/game-center");
 
         this.keyMap = {
             37: "left",
@@ -32,19 +33,32 @@ export default class GamePanel
             83: "down2"
         };
         this.tempDirectionCode = 37;
-        this.tempDirectionCode_2 = 65;
+        this.tempDirectionCode_2 = 68;
         this.directionCode = 37;
-        this.directionCode_2 = 65;
+        this.directionCode_2 = 68;
         this.intervalID = null;
+    }
+
+    _initSocketEvent()
+    {
+        this.socket.on("init", info => {
+            if (info.waitPlayer)
+            {
+
+            }
+        });
     }
 
     _initSnake()
     {
         this.snake1 = new Array();
         this.snake2 = new Array();
-        for(let i = 10; i < 20; i++)
+        for(let i = 10; i <= 20; i++)
         {
             this.snake1.push([10,i]);
+        }
+        for(let i = 20; i >= 10; i--)
+        {
             this.snake2.push([15,i]);
         }
     }
@@ -153,8 +167,6 @@ export default class GamePanel
                 break;
         }
         nextStep_2 = [pos0_2, pos1_2];
-        console.log(nextStep);
-        console.log(nextStep_2);
 
         //1. 判断snake1是否死亡
         if (!this._checkIfSnake1Die(nextStep))
@@ -187,7 +199,6 @@ export default class GamePanel
             {
                 this.snake2.unshift(nextStep_2);
                 this.bean = this._generateBean();
-                console.log(22222);
             }
             else
             {
