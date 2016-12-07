@@ -25,10 +25,16 @@ export default class GamePanel
             37: "left",
             38: "top",
             39: "right",
-            40: "down"
+            40: "down",
+            65: "left2",
+            87: "top2",
+            68: "right2",
+            83: "down2"
         };
         this.tempDirectionCode = 37;
+        this.tempDirectionCode_2 = 65;
         this.directionCode = 37;
+        this.directionCode_2 = 65;
         this.intervalID = null;
     }
 
@@ -39,6 +45,7 @@ export default class GamePanel
         for(let i = 10; i < 20; i++)
         {
             this.snake1.push([10,i]);
+            this.snake2.push([15,i]);
         }
     }
 
@@ -50,11 +57,24 @@ export default class GamePanel
     _initListener()
     {
         $(document).keydown(event => {
-            if (this.directionCode !== event.keyCode)
+            if (event.keyCode === 37 || event.keyCode === 38 || event.keyCode === 39 || event.keyCode === 40)
             {
-                if (!(this.directionCode - 2 === event.keyCode || this.directionCode + 2 === event.keyCode))
+                if (this.directionCode !== event.keyCode)
                 {
-                    this.tempDirectionCode = event.keyCode;
+                    if (!(this.directionCode - 2 === event.keyCode || this.directionCode + 2 === event.keyCode))
+                    {
+                        this.tempDirectionCode = event.keyCode;
+                    }
+                }
+            }
+            else
+            {
+                if (this.directionCode_2 !== event.keyCode)
+                {
+                    if (!(this.directionCode_2 - 3 === event.keyCode || this.directionCode_2 + 3 === event.keyCode || this.directionCode_2 - 4 === event.keyCode || this.directionCode_2 + 4 === event.keyCode))
+                    {
+                        this.tempDirectionCode_2 = event.keyCode;
+                    }
                 }
             }
         });
@@ -77,6 +97,10 @@ export default class GamePanel
         this.snake1.forEach(item => {
             this.panel2d.fillRect(item[1] * this.length, item[0] * this.length, this.length, this.length);
         });
+        this.panel2d.fillStyle = "blue";
+        this.snake2.forEach(item => {
+            this.panel2d.fillRect(item[1] * this.length, item[0] * this.length, this.length, this.length);
+        });
 
         //画豆子
         this.panel2d.fillStyle = "red";
@@ -85,12 +109,12 @@ export default class GamePanel
 
     snakeAutoRun()
     {
-        this.intervalID = window.setInterval(this._goNext.bind(this), 75);
+        this.intervalID = window.setInterval(this._goNext.bind(this), 300);
     }
 
     _goNext()
     {
-        let pos0, pos1, nextStep;
+        let pos0, pos1, pos0_2, pos1_2, nextStep, nextStep_2;
         switch (this.keyMap[this.directionCode]) {
             case "left":
                 pos0 = this.snake1[0][0];
@@ -110,11 +134,33 @@ export default class GamePanel
                 break;
         }
         nextStep = [pos0, pos1];
-        //1. 判断是否死亡
-        if (!this._checkIfDie(nextStep))
+        switch (this.keyMap[this.directionCode_2]) {
+            case "left2":
+                pos0_2 = this.snake2[0][0];
+                pos1_2 = this.snake2[0][1] - 1;
+                break;
+            case "top2":
+                pos0_2 = this.snake2[0][0] - 1;
+                pos1_2 = this.snake2[0][1];
+                break;
+            case "right2":
+                pos0_2 = this.snake2[0][0];
+                pos1_2 = this.snake2[0][1] + 1;
+                break;
+            case "down2":
+                pos0_2 = this.snake2[0][0] + 1;
+                pos1_2 = this.snake2[0][1];
+                break;
+        }
+        nextStep_2 = [pos0_2, pos1_2];
+        console.log(nextStep);
+        console.log(nextStep_2);
+
+        //1. 判断snake1是否死亡
+        if (!this._checkIfSnake1Die(nextStep))
         {
-            //2. 判断是否吃到了豆子
-            if (this._checkEatBean(nextStep))
+            //2. 判断snake1是否吃到了豆子
+            if (this._checkSnake1EatBean(nextStep))
             {
                 this.snake1.unshift(nextStep);
                 this.bean = this._generateBean();
@@ -129,10 +175,44 @@ export default class GamePanel
         }
         else
         {
-            alert("You die!");
+            alert("Player1 die, Player2 win!");
             window.clearInterval(this.intervalID);
             return;
         }
+        //3. 判断snake2是否死亡
+        if (!this._checkIfSnake2Die(nextStep_2))
+        {
+            //4. 判断snake2是否吃到了豆子
+            if (this._checkSnake2EatBean(nextStep_2))
+            {
+                this.snake2.unshift(nextStep_2);
+                this.bean = this._generateBean();
+                console.log(22222);
+            }
+            else
+            {
+                this.snake2.pop();
+                this.snake2.unshift(nextStep_2);
+            }
+            this.directionCode_2 = this.tempDirectionCode_2;
+            this.render();
+        }
+        else
+        {
+            alert("Player2 die, Player1 win!");
+            window.clearInterval(this.intervalID);
+            return;
+        }
+    }
+
+    _checkIfSnake1Die(nextStep)
+    {
+        return this._checkIfDie(nextStep);
+    }
+
+    _checkIfSnake2Die(nextStep)
+    {
+        return this._checkIfDie(nextStep);
     }
 
     _checkIfDie(nextStep)
@@ -146,10 +226,25 @@ export default class GamePanel
             if (item.toString() === nextStep.toString())
             {
                 isDie = true;
-                console.log("die", nextStep);
+            }
+        });
+        this.snake2.forEach(item => {
+            if (item.toString() === nextStep.toString())
+            {
+                isDie = true;
             }
         });
         return isDie;
+    }
+
+    _checkSnake1EatBean(nextStep)
+    {
+        return this._checkEatBean(nextStep);
+    }
+
+    _checkSnake2EatBean(nextStep)
+    {
+        return this._checkEatBean(nextStep);
     }
 
     _checkEatBean(nextStep)
@@ -169,6 +264,12 @@ export default class GamePanel
         let isBeanAvail = true;
         let newBean = [pos0, pos1];
         this.snake1.forEach(item => {
+            if (newBean[0] === item[0] && newBean[1] === item[1])
+            {
+                isBeanAvail = false;
+            }
+        });
+        this.snake2.forEach(item => {
             if (newBean[0] === item[0] && newBean[1] === item[1])
             {
                 isBeanAvail = false;
