@@ -17,7 +17,7 @@
     socket.on("count", info => {
         $("#shade").html(info.time);
     });
-    socket.on("begin", () => {
+    socket.on("redirect", () => {
         location.href = "http://localhost:8080/rs/";
     });
 </script>
