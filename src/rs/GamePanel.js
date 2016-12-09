@@ -36,7 +36,6 @@ export default class GamePanel
         });
         this.socket.on("nextStep", info => {
             this.snake1 = info.snake1;
-            console.log(this.snake1);
             this.snake2 = info.snake2;
             this.render();
         });
