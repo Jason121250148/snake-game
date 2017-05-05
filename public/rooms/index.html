@@ -18,7 +18,7 @@
         $("#shade").html(`匹配对手成功，游戏将于${info.time}秒后开始!`);
     });
     socket.on("redirect", () => {
-        location.href = "http://localhost:8080/rs/";
+        location.href = document.domain + "/rs";
     });
 </script>
 </html>
